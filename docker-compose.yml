@@ -1,0 +1,81 @@
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+mongodata:  
+  image: mongo
+  volumes:
+    - /data/db
+  command: --break-mongo
+mongo:  
+  image: mongo
+  volumes_from:
+    - mongodata
+  ports:
+    - "27017:27017"
+  command: --smallfiles --rest --auth
+
+configserver:
+  image: product-live/pl-configserver
+  restart: always
+
+eurekaregistry:
+  image: product-live/pl-registry
+  restart: always
+  ports:
+    - "8761:8761"
+  links:
+    - configserver
+    
+authserver:
+  image: product-live/pl-authserver
+  restart: always
+  ports:
+    - "8899:8899"
+  links:
+    - mongo
+    - configserver
+    
+apigateway:
+  image: product-live/pl-gateway
+  restart: always
+  links:
+    - eurekaregistry
+    - authserver
+    - mongo
+    - configserver
+
+webportal:
+  image: product-live/pl-portal
+  restart: always
+  links:
+    - eurekaregistry
+    - configserver
+
+company:
+  image: product-live/pl-company
+  restart: always
+  links:
+    - eurekaregistry
+    - authserver
+    - mongo
+    - configserver
+
+productdynamic:
+  image: product-live/pl-product-dynamic
+  restart: always
+  links:
+    - eurekaregistry
+    - authserver
+    - mongo
+    - configserver
+
+productdstruct:
+  image: product-live/pl-product-struct
+  restart: always
+  links:
+    - eurekaregistry
+    - authserver
+    - mongo
+    - configserver
+

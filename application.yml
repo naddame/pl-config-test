@@ -1,0 +1,6 @@
+mail:
+  domain: gmail.com
+  
+spring:
+  redis:
+    host: 192.168.99.100
